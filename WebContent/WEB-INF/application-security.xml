@@ -1,0 +1,49 @@
+<beans:beans
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/security
+	http://www.springframework.org/schema/security/spring-security.xsd">
+	
+	<http pattern="/resources/**" security="none"/>
+	
+	<http use-expressions="true" authentication-manager-ref="userAuthManager">
+		<intercept-url pattern="/message/**" access="isFullyAuthenticated()" />
+		<form-login username-parameter="username" password-parameter="password" 
+			login-page="/user/login"
+			always-use-default-target="true"
+			default-target-url="/message/list"
+			login-processing-url="/user/loginAuth"
+			authentication-failure-url="/user/login?invalidCred=true"
+			authentication-success-handler-ref="svaAppAuthenticationSuccessHandler"
+		/>
+		<logout logout-url="/user/logout" logout-success-url="/user/login"/>
+	</http>
+	
+	<!-- <jdbc-user-service data-source-ref="dataSource" id="userAuthService"
+		users-by-username-query="select id, password, true from users where id=? limit 1"
+		authorities-by-username-query="select id, type from users where id=? limit 1"
+	/>  -->
+	
+	<!-- custom user service -->
+<!-- 	<user-service id="userAuthService" > -->
+<!-- 		<user name="vicky" password="something" authorities="ROLE_USER"/> -->
+<!-- 		<user name="348627" password="something" authorities="ROLE_ADMIN"/> -->
+<!-- 		<user name="348628" password="something" authorities="ROLE_USER"/> -->
+<!-- 		<user name="348629" password="something" authorities="ROLE_ADMIN"/> -->
+<!-- 	</user-service> -->
+	
+	<authentication-manager id="userAuthManager">
+		<authentication-provider user-service-ref="userAuthService" />
+	</authentication-manager>
+	
+	
+	<!--  Custom user service -->
+	<beans:bean id="userAuthService" class="com.asu.sva.assign.processor.SVAAppUserDetailsService" />
+	
+	<!-- Success handler -->
+	<beans:bean id="svaAppAuthenticationSuccessHandler" class="com.asu.sva.assign.util.SVAAppAuthenticationSuccessHandler"></beans:bean>
+	
+</beans:beans>
